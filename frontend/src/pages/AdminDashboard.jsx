@@ -30,6 +30,7 @@ const AdminDashboard = () => {
   const [filterSearch, setFilterSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [filterPriority, setFilterPriority] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filterOverdue, setFilterOverdue] = useState(false);
 
@@ -90,6 +91,7 @@ const AdminDashboard = () => {
       const queryParams = new URLSearchParams();
       if (filterCategory) queryParams.append('category', filterCategory);
       if (filterStatus) queryParams.append('status', filterStatus);
+      if (filterPriority) queryParams.append('priority', filterPriority);
       if (filterDate) queryParams.append('date', filterDate);
       if (filterOverdue) queryParams.append('overdue', 'true');
 
@@ -105,7 +107,7 @@ const AdminDashboard = () => {
   // Re-run complaints fetch when filters change
   useEffect(() => {
     fetchComplaints();
-  }, [filterCategory, filterStatus, filterDate, filterOverdue]);
+  }, [filterCategory, filterStatus, filterPriority, filterDate, filterOverdue]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -339,6 +341,16 @@ const AdminDashboard = () => {
                       <option value="Open">Open</option>
                       <option value="In Progress">In Progress</option>
                       <option value="Resolved">Resolved</option>
+                    </select>
+                  </div>
+
+                  <div className="filter-item" style={{ flex: '1 1 120px' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.2rem' }}>Priority</label>
+                    <select className="form-control" value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}>
+                      <option value="">All Priorities</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
                     </select>
                   </div>
 

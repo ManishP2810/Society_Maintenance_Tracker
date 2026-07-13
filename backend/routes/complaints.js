@@ -81,7 +81,7 @@ router.post('/', protect, authorize('resident'), upload.single('photo'), async (
 // @access  Private/Admin
 router.get('/', protect, authorize('admin'), async (req, res) => {
   try {
-    const { category, status, date, overdue } = req.query;
+    const { category, status, date, overdue, priority } = req.query;
     const query = {};
 
     if (category) {
@@ -90,6 +90,10 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
 
     if (status) {
       query.status = status;
+    }
+
+    if (priority) {
+      query.priority = priority;
     }
 
     if (date) {
@@ -121,10 +125,23 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
       };
     });
 
-    // Custom sorting: overdue items at the top
+    // Priority weights for sorting
+    const priorityWeight = { High: 3, Medium: 2, Low: 1 };
+
+    // Custom sorting:
+    // 1. Overdue items at the absolute top
+    // 2. Sort by Priority (High -> Medium -> Low)
+    // 3. Sort by creation date descending
     formattedComplaints.sort((a, b) => {
       if (a.isOverdue && !b.isOverdue) return -1;
       if (!a.isOverdue && b.isOverdue) return 1;
+
+      const weightA = priorityWeight[a.priority] || 2;
+      const weightB = priorityWeight[b.priority] || 2;
+      if (weightA !== weightB) {
+        return weightB - weightA; // High (3) -> Medium (2) -> Low (1)
+      }
+
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
 
