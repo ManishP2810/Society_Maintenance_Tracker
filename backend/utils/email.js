@@ -8,14 +8,36 @@ const sendEmail = async (options) => {
 
   if (isConfigured) {
     try {
-      const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT || 587,
+      const cleanHost = process.env.EMAIL_HOST.trim();
+      const cleanUser = process.env.EMAIL_USER.trim();
+      const cleanPass = process.env.EMAIL_PASS.replace(/['"]/g, '').trim();
+      const port = parseInt(process.env.EMAIL_PORT) || 587;
+
+      let transporterConfig = {
+        host: cleanHost,
+        port: port,
+        secure: port === 465,
         auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
+          user: cleanUser,
+          pass: cleanPass,
         },
-      });
+        tls: {
+          rejectUnauthorized: false
+        }
+      };
+
+      // Use Nodemailer's built-in Gmail optimization if host is Gmail
+      if (cleanHost.includes('gmail.com')) {
+        transporterConfig = {
+          service: 'gmail',
+          auth: {
+            user: cleanUser,
+            pass: cleanPass
+          }
+        };
+      }
+
+      const transporter = nodemailer.createTransport(transporterConfig);
 
       const message = {
         from: `${process.env.FROM_NAME || 'Society Maintenance'} <${process.env.FROM_EMAIL || 'noreply@societytracker.com'}>`,
