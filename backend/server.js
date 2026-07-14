@@ -35,12 +35,41 @@ app.get('/api/health', (req, res) => {
 // Email diagnostic endpoint (temporary)
 app.get('/api/health/test-email', async (req, res) => {
   try {
-    const sendEmail = require('./utils/email');
     console.log('Diagnostic API: Sending test email...');
     
-    // We expect sendEmail to either resolve or log the error. 
-    // Since our sendEmail has a try/catch internal fallback, let's bypass the fallback 
-    // or test a direct transport verification.
+    // Check if Resend is configured
+    if (process.env.RESEND_API_KEY) {
+      const cleanKey = process.env.RESEND_API_KEY.trim();
+      const cleanUser = process.env.EMAIL_USER ? process.env.EMAIL_USER.trim() : 'manishpunde28@gmail.com';
+      const fromEmail = 'onboarding@resend.dev';
+      
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${cleanKey}`,
+        },
+        body: JSON.stringify({
+          from: `SMTP Test <${fromEmail}>`,
+          to: cleanUser,
+          subject: 'Render Resend Live Diagnostic',
+          text: 'Resend API connection is active and sending emails from Render successfully!'
+        }),
+      });
+
+      const resData = await response.json();
+      if (!response.ok) {
+        throw new Error(resData.message || 'Resend API Error');
+      }
+
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Resend API configuration verified and test email sent!', 
+        info: resData 
+      });
+    }
+
+    // SMTP Fallback
     const nodemailer = require('nodemailer');
     const cleanHost = process.env.EMAIL_HOST ? process.env.EMAIL_HOST.trim() : '';
     const cleanUser = process.env.EMAIL_USER ? process.env.EMAIL_USER.trim() : '';
@@ -82,6 +111,7 @@ app.get('/api/health/test-email', async (req, res) => {
       error: error.message, 
       stack: error.stack, 
       config: {
+        resendConfigured: !!process.env.RESEND_API_KEY,
         host: process.env.EMAIL_HOST,
         port: process.env.EMAIL_PORT,
         user: process.env.EMAIL_USER,
