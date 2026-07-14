@@ -112,13 +112,76 @@ node test-api.js
 
 ## Database Schemas
 
-### 1. User Collection
+We use MongoDB as our database, modeled with Mongoose. Below is the Entity-Relationship Diagram (ERD) and detailed field descriptions for our collections:
+
+### Entity-Relationship Diagram (ERD)
+
+```mermaid
+erDiagram
+    USER ||--o{ COMPLAINT : "submits"
+    USER ||--o{ NOTICE : "posts"
+    USER ||--o{ STATUS_LOG : "triggers"
+    COMPLAINT ||--|{ STATUS_LOG : "tracks history"
+    
+    USER {
+        ObjectId id PK
+        string name
+        string email
+        string password
+        string role
+        date createdAt
+        date updatedAt
+    }
+    
+    COMPLAINT {
+        ObjectId id PK
+        string title
+        string description
+        string category
+        string photoUrl
+        string status
+        string priority
+        ObjectId residentId FK
+        date createdAt
+        date updatedAt
+    }
+    
+    STATUS_LOG {
+        string status
+        ObjectId actor FK
+        string actorName
+        string note
+        date timestamp
+    }
+    
+    NOTICE {
+        ObjectId id PK
+        string title
+        string content
+        boolean isImportant
+        ObjectId authorId FK
+        date createdAt
+        date updatedAt
+    }
+    
+    SETTINGS {
+        ObjectId id PK
+        string key
+        mixed value
+        date createdAt
+        date updatedAt
+    }
+```
+
+### Detailed Schema Fields
+
+#### 1. User Collection
 - `name` (String, required)
 - `email` (String, required, unique, validated)
 - `password` (String, required, hashed with Bcrypt)
 - `role` (String, enum: `['resident', 'admin']`, default: `'resident'`)
 
-### 2. Complaint Collection
+#### 2. Complaint Collection
 - `title` (String, required, max 100 chars)
 - `description` (String, required)
 - `category` (String, required, enum: Plumbing, Electrical, Security, Cleanliness, Common Area, Others)
@@ -133,16 +196,15 @@ node test-api.js
   - `note` (String)
   - `timestamp` (Date)
 
-### 3. Notice Collection
+#### 3. Notice Collection
 - `title` (String, required)
 - `content` (String, required)
 - `isImportant` (Boolean, default: false) - pins announcement and sends emails
 - `authorId` (ObjectId, ref User)
 
-### 4. Settings Collection
-- `key` (String, unique) - e.g. `'overdue_threshold_days'`
-- `value` (Mixed) - e.g. `3`
-
+#### 4. Settings Collection
+- `key` (String, unique) - e.g., `'overdue_threshold_days'`
+- `value` (Mixed) - e.g., `3`
 ---
 
 ## API Endpoints Documentation
