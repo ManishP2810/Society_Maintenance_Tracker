@@ -54,59 +54,59 @@ A premium, modern web application built on the **MERN (MongoDB, Express.js, Reac
 
 ### Prerequisites
 - Node.js (v18.0.0 or higher recommended)
-- MongoDB installed locally (running on `mongodb://localhost:27017`) or a remote MongoDB Atlas URI.
+- MongoDB installed locally (running on `mongodb://127.0.0.1:27017`) or a remote MongoDB Atlas URI.
 
-### Step 1: Clone and Configure Environment
+### Step 1: Configure Environment Variables
 
 1. Rename the `.env.example` at the root to `.env` or create a `.env` in the `backend/` folder:
    ```bash
    PORT=5000
-   MONGO_URI=mongodb://localhost:27017/society_maintenance_tracker
+   MONGO_URI=mongodb://127.0.0.1:27017/society_maintenance_tracker
    JWT_SECRET=developer_security_signing_key_secret
    JWT_EXPIRES_IN=30d
    ```
-2. *(Optional)* Configure SMTP settings in the `.env` to receive emails. If these are left blank, emails will still print mock logs directly to the Node terminal console.
+2. **Email Delivery Configuration (Optional)**:
+   - **Method A (Resend API - Preferred for Production)**: Add `RESEND_API_KEY=re_your_api_key_here` to bypass cloud firewall SMTP port blocks (e.g., Render Free Tier).
+   - **Method B (SMTP Settings)**: Fill in `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, and `EMAIL_PASS` (e.g., Gmail App Password).
+   - If left blank, the app runs in **Mock Mode**, printing email bodies directly to the terminal logs.
 
-### Step 2: Start the Backend Server
+### Step 2: Run Locally (Development Mode)
 
-1. Open your terminal and navigate to the `backend/` directory:
+1. **Start Backend**: Navigate to the `backend/` directory, install packages, and boot:
    ```bash
    cd backend
-   ```
-2. Install server-side packages:
-   ```bash
    npm install
-   ```
-3. Boot up the server in development mode (using Nodemon):
-   ```bash
    npm run dev
    ```
-   The backend should log that it connected to MongoDB and is listening on **Port 5000**.
-
-### Step 3: Verify Backend API (Integration Test)
-
-1. Keeping the backend running, open a new terminal and navigate to the `backend/` folder.
-2. Run the programmatic check script:
-   ```bash
-   node test-api.js
-   ```
-   This will execute automated sign-up, sign-in, tickets creation, notice boards updates, and cleanups to verify that all routes work perfectly.
-
-### Step 4: Run the React Frontend
-
-1. Navigate to the `frontend/` directory in a new terminal window:
+2. **Start Frontend**: Open a new terminal, navigate to `frontend/`, install packages, and boot:
    ```bash
    cd frontend
-   ```
-2. Install frontend packages:
-   ```bash
    npm install
-   ```
-3. Spin up Vite's local dev server:
-   ```bash
    npm run dev
    ```
-4. Click the output URL in your terminal (usually `http://localhost:5173`) to launch the application.
+3. Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Step 3: Run the Database Clean Utility
+To wipe all notice and complaint documents and clear any uploaded static image files, run:
+```bash
+cd backend
+node clear-data.js
+```
+
+### Step 4: Run Unified Build (Production Mode)
+The project is configured as a monolithic monorepo. You can compile and test the production-ready build of both frontend and backend using the root-level unified script:
+```bash
+# In the repository root directory:
+npm run build
+npm start
+```
+
+### Step 5: Verify Backend API (Integration Test)
+With the backend server running locally, you can verify all API endpoints automatically by running:
+```bash
+cd backend
+node test-api.js
+```
 
 ---
 
