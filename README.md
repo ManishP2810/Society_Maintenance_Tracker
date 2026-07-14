@@ -1,5 +1,7 @@
 # Society Maintenance Tracker
 
+**Live Hosted Application URL**: [https://society-maintenance-tracker-3xp8.onrender.com](https://society-maintenance-tracker-3xp8.onrender.com)
+
 A premium, modern web application built on the **MERN (MongoDB, Express.js, React, Node.js)** stack. It offers residents a sleek interface to raise and monitor support tickets with photo uploads, while providing administrators a robust dashboard with overdue ticket auto-surfacing, priority controls, notice board managers, and automated status change email notifications.
 
 ---
