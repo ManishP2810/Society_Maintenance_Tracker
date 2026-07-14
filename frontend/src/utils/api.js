@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000');
+const API_BASE_URL = `${BASE_URL}/api`;
 
 const request = async (endpoint, options = {}) => {
   const token = localStorage.getItem('token');
@@ -33,5 +34,5 @@ export const api = {
   post: (endpoint, body, options) => request(endpoint, { method: 'POST', body, ...options }),
   put: (endpoint, body, options) => request(endpoint, { method: 'PUT', body, ...options }),
   delete: (endpoint, options) => request(endpoint, { method: 'DELETE', ...options }),
-  baseUrl: 'http://localhost:5000', // helpful for prepending to uploads paths
+  baseUrl: BASE_URL, // helpful for prepending to uploads paths
 };

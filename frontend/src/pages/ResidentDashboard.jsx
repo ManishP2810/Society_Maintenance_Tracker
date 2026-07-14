@@ -12,7 +12,14 @@ import {
   FiCalendar,
   FiInfo,
   FiSun,
-  FiMoon
+  FiMoon,
+  FiZap,
+  FiTrash2,
+  FiLayout,
+  FiTool,
+  FiSettings,
+  FiShield,
+  FiSearch
 } from 'react-icons/fi';
 
 const ResidentDashboard = () => {
@@ -26,6 +33,54 @@ const ResidentDashboard = () => {
   const [showRaiseModal, setShowRaiseModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  
+  // Notice Board State
+  const [expandedNoticeId, setExpandedNoticeId] = useState(null);
+  const [noticeSearch, setNoticeSearch] = useState('');
+
+  const getCategoryIcon = (category) => {
+    const iconStyle = "category-icon-wrapper";
+    switch (category) {
+      case 'Plumbing':
+        return <div className={`${iconStyle} cat-plumbing`} title="Plumbing"><FiTool /></div>;
+      case 'Electrical':
+        return <div className={`${iconStyle} cat-electrical`} title="Electrical"><FiZap /></div>;
+      case 'Security':
+        return <div className={`${iconStyle} cat-security`} title="Security"><FiShield /></div>;
+      case 'Cleanliness':
+        return <div className={`${iconStyle} cat-cleanliness`} title="Cleanliness"><FiTrash2 /></div>;
+      case 'Common Area':
+        return <div className={`${iconStyle} cat-common`} title="Common Area"><FiLayout /></div>;
+      default:
+        return <div className={`${iconStyle} cat-others`} title="Others"><FiSettings /></div>;
+    }
+  };
+
+  const getNoticeCategory = (title, content) => {
+    const text = `${title} ${content}`.toLowerCase();
+    if (text.includes('water') || text.includes('plumbing') || text.includes('tank') || text.includes('sewer')) {
+      return { label: 'Water Utility', icon: '💧' };
+    }
+    if (text.includes('electricity') || text.includes('power') || text.includes('generator') || text.includes('outage') || text.includes('blackout') || text.includes('phase')) {
+      return { label: 'Power Supply', icon: '⚡' };
+    }
+    if (text.includes('lift') || text.includes('elevator') || text.includes('lobby') || text.includes('stair') || text.includes('roof')) {
+      return { label: 'Lift & Utilities', icon: '🛗' };
+    }
+    if (text.includes('payment') || text.includes('bill') || text.includes('due') || text.includes('maintenance fee') || text.includes('fine') || text.includes('charges') || text.includes('penalty')) {
+      return { label: 'Finance & Dues', icon: '💵' };
+    }
+    if (text.includes('security') || text.includes('cctv') || text.includes('gate') || text.includes('parking') || text.includes('guard') || text.includes('theft') || text.includes('visitor')) {
+      return { label: 'Security & Parking', icon: '🛡️' };
+    }
+    if (text.includes('meeting') || text.includes('agm') || text.includes('celebration') || text.includes('festival') || text.includes('gathering') || text.includes('event') || text.includes('party')) {
+      return { label: 'Community Meet', icon: '🤝' };
+    }
+    if (text.includes('clean') || text.includes('garbage') || text.includes('waste') || text.includes('pest') || text.includes('hygiene') || text.includes('painting') || text.includes('renovation')) {
+      return { label: 'Maintenance', icon: '🧹' };
+    }
+    return { label: 'General Announcement', icon: '📢' };
+  };
 
   // Form state
   const [formTitle, setFormTitle] = useState('');
@@ -170,19 +225,46 @@ const ResidentDashboard = () => {
       {/* Main Content */}
       <main className="main-content">
         {loading ? (
-          <div className="empty-state">
-            <div className="empty-state-icon" style={{ animation: 'pulse 1.5s infinite' }}>⏳</div>
-            <h2>Syncing dashboard...</h2>
+          <div className="dashboard-grid">
+            <div className="card col-span-7">
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                <div className="skeleton skeleton-title" style={{ width: '45%' }}></div>
+                <div className="skeleton" style={{ width: '130px', height: '38px', borderRadius: 'var(--radius-md)' }}></div>
+              </div>
+              <div className="skeleton-card">
+                <div className="skeleton skeleton-badge" style={{ marginBottom: '0.5rem' }}></div>
+                <div className="skeleton skeleton-title"></div>
+                <div className="skeleton skeleton-text"></div>
+                <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
+              </div>
+              <div className="skeleton-card">
+                <div className="skeleton skeleton-badge" style={{ marginBottom: '0.5rem' }}></div>
+                <div className="skeleton skeleton-title"></div>
+                <div className="skeleton skeleton-text"></div>
+                <div className="skeleton skeleton-text" style={{ width: '60%' }}></div>
+              </div>
+            </div>
+            <div className="card col-span-5">
+              <div className="skeleton skeleton-title" style={{ width: '50%', marginBottom: '2rem' }}></div>
+              <div className="skeleton-card">
+                <div className="skeleton skeleton-title"></div>
+                <div className="skeleton skeleton-text"></div>
+              </div>
+              <div className="skeleton-card">
+                <div className="skeleton skeleton-title"></div>
+                <div className="skeleton skeleton-text"></div>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="dashboard-grid">
             
             {/* Complaints Column (Left) */}
-            <div className="card" style={{ gridColumn: 'span 7' }}>
-              <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div className="card col-span-7">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
                 <div>
-                  <h2 style={{ fontSize: '1.25rem' }}>My Support Tickets</h2>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Raise and track maintenance concerns</p>
+                  <h2 style={{ fontSize: '1.35rem', color: 'var(--text-primary)' }}>My Support Tickets</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.15rem' }}>Raise and track maintenance concerns</p>
                 </div>
                 <button onClick={() => setShowRaiseModal(true)} className="btn btn-primary">
                   <FiPlus /> New Complaint
@@ -202,33 +284,37 @@ const ResidentDashboard = () => {
                       key={c._id}
                       className={`complaint-item ${c.isOverdue ? 'overdue' : ''}`}
                       onClick={() => openComplaintDetails(c)}
+                      style={{ display: 'flex', flexDirection: 'row', gap: '1.25rem', alignItems: 'flex-start' }}
                     >
-                      <div className="complaint-header-row">
-                        <div className="complaint-title">{c.title}</div>
-                        <div className="complaint-badges-group">
-                          {c.isOverdue && <span className="badge badge-overdue"><FiAlertTriangle /> Overdue</span>}
-                          {getStatusBadge(c.status)}
+                      {getCategoryIcon(c.category)}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className="complaint-header-row">
+                          <div className="complaint-title">{c.title}</div>
+                          <div className="complaint-badges-group">
+                            {c.isOverdue && <span className="badge badge-overdue"><FiAlertTriangle /> Overdue</span>}
+                            {getStatusBadge(c.status)}
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="complaint-meta">
-                        <span className="complaint-category-label">{c.category}</span>
-                        <span>•</span>
-                        <span>Ticket #{c._id.toString().slice(-6).toUpperCase()}</span>
-                        <span>•</span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <FiCalendar /> {new Date(c.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-
-                      <div className="complaint-desc">{c.description}</div>
-
-                      <div className="complaint-footer-row">
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          Priority: {getPriorityBadge(c.priority)}
+                        <div className="complaint-meta">
+                          <span className="complaint-category-label">{c.category}</span>
+                          <span>•</span>
+                          <span>Ticket #{c._id.toString().slice(-6).toUpperCase()}</span>
+                          <span>•</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <FiCalendar /> {new Date(c.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '600' }}>
-                          View status history ({c.statusHistory?.length || 1} logs) →
+
+                        <div className="complaint-desc">{c.description}</div>
+
+                        <div className="complaint-footer-row">
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            Priority: {getPriorityBadge(c.priority)}
+                          </div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>
+                            View History ({c.statusHistory?.length || 1}) →
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -236,44 +322,99 @@ const ResidentDashboard = () => {
                 </div>
               )}
             </div>
-
             {/* Notice Board Column (Right) */}
-            <div className="card" style={{ gridColumn: 'span 5' }}>
-              <h2 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Announcements Board</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+            <div className="card col-span-5" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.35rem', marginBottom: '0.15rem' }}>Announcements Board</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
                 Official notes from the administrator
               </p>
 
-              {notices.length === 0 ? (
-                <div className="empty-state" style={{ padding: '2rem' }}>
-                  <FiInfo className="empty-state-icon" style={{ fontSize: '2rem' }} />
-                  <h3>No notices posted</h3>
-                  <p>General announcements will appear here.</p>
+              <div className="notice-board-container">
+                <div className="notice-board-header">
+                  <div className="notice-board-title">
+                    📢 Notices
+                  </div>
+                  <div className="notice-board-search">
+                    <FiSearch className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Search board..."
+                      value={noticeSearch}
+                      onChange={(e) => setNoticeSearch(e.target.value)}
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="notice-board">
-                  {notices.map((notice) => (
-                    <div key={notice._id} className={`notice-card ${notice.isImportant ? 'pinned' : ''}`}>
-                      {notice.isImportant && (
-                        <div className="notice-pinned-badge">
-                          📌 Pinned
-                        </div>
-                      )}
-                      <div className="notice-header">
-                        <h4 style={{ fontSize: '1rem', color: notice.isImportant ? 'var(--warning-dark)' : 'inherit' }}>
-                          {notice.title}
-                        </h4>
+
+                {notices.length === 0 ? (
+                  <div className="empty-state" style={{ background: 'transparent', padding: '1rem 0' }}>
+                    <FiInfo className="empty-state-icon" />
+                    <h3>No notices posted</h3>
+                    <p>Announcements from management will appear here.</p>
+                  </div>
+                ) : (() => {
+                  const filtered = notices.filter(n => 
+                    n.title.toLowerCase().includes(noticeSearch.toLowerCase()) ||
+                    n.content.toLowerCase().includes(noticeSearch.toLowerCase())
+                  );
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="notice-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '120px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>🔍</div>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: '800' }}>No matching notices</h4>
+                        <p style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.25rem' }}>Try searching something else</p>
                       </div>
-                      <div className="notice-meta">
-                        <span>By {notice.authorId?.name || 'Admin'}</span>
-                        <span>•</span>
-                        <span>{new Date(notice.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <div className="notice-body">{notice.content}</div>
+                    );
+                  }
+
+                  return (
+                    <div className="notice-board">
+                      {filtered.map((notice) => {
+                        const isExpanded = expandedNoticeId === notice._id;
+                        const category = getNoticeCategory(notice.title, notice.content);
+                        return (
+                          <div 
+                            key={notice._id} 
+                            className={`notice-card ${notice.isImportant ? 'pinned' : ''} ${isExpanded ? 'active-expanded' : ''}`}
+                            onClick={() => setExpandedNoticeId(isExpanded ? null : notice._id)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <div className="notice-tag">
+                              {category.icon} {category.label}
+                            </div>
+                            
+                            {notice.isImportant && (
+                              <div className="notice-pinned-badge">
+                                📌 Important
+                              </div>
+                            )}
+                            
+                            <div className="notice-header">
+                              <h4 style={{ fontSize: '1.05rem' }}>
+                                {notice.title}
+                              </h4>
+                            </div>
+                            
+                            <div className={`notice-body-wrapper ${isExpanded ? 'expanded' : ''}`} style={{ marginTop: isExpanded ? '0.5rem' : '0' }}>
+                              <div className="notice-body">{notice.content}</div>
+                            </div>
+                            
+                            <div className="notice-expand-indicator">
+                              {isExpanded ? 'Show Less ↑' : 'Read Announcement ↓'}
+                            </div>
+
+                            <div className="notice-meta">
+                              <span>By {notice.authorId?.name || 'Admin'}</span>
+                              <span>•</span>
+                              <span>{new Date(notice.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
-              )}
+                  );
+                })()}
+              </div>
             </div>
 
           </div>
@@ -371,19 +512,17 @@ const ResidentDashboard = () => {
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <div className="form-row" style={{ marginTop: '1.75rem' }}>
                 <button
                   type="button"
                   onClick={() => setShowRaiseModal(false)}
                   className="btn btn-secondary"
-                  style={{ flex: 1 }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  style={{ flex: 2 }}
                   disabled={formSubmitting}
                 >
                   {formSubmitting ? 'Submitting Ticket...' : 'File Complaint'}

@@ -14,12 +14,34 @@ import {
   FiSearch,
   FiFilter,
   FiSun,
-  FiMoon
+  FiMoon,
+  FiZap,
+  FiLayout,
+  FiTool,
+  FiShield
 } from 'react-icons/fi';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const [complaints, setComplaints] = useState([]);
+  
+  const getCategoryIcon = (category) => {
+    const iconStyle = "category-icon-wrapper";
+    switch (category) {
+      case 'Plumbing':
+        return <div className={`${iconStyle} cat-plumbing`} title="Plumbing"><FiTool /></div>;
+      case 'Electrical':
+        return <div className={`${iconStyle} cat-electrical`} title="Electrical"><FiZap /></div>;
+      case 'Security':
+        return <div className={`${iconStyle} cat-security`} title="Security"><FiShield /></div>;
+      case 'Cleanliness':
+        return <div className={`${iconStyle} cat-cleanliness`} title="Cleanliness"><FiTrash2 /></div>;
+      case 'Common Area':
+        return <div className={`${iconStyle} cat-common`} title="Common Area"><FiLayout /></div>;
+      default:
+        return <div className={`${iconStyle} cat-others`} title="Others"><FiSettings /></div>;
+    }
+  };
   const [notices, setNotices] = useState([]);
   const [stats, setStats] = useState({ total: 0, byStatus: { Open: 0, 'In Progress': 0, Resolved: 0 }, overdueCount: 0 });
   const [settings, setSettings] = useState({ overdueThresholdDays: 3 });
@@ -267,62 +289,117 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="main-content">
         {loading ? (
-          <div className="empty-state">
-            <div className="empty-state-icon" style={{ animation: 'pulse 1.5s infinite' }}>⏳</div>
-            <h2>Fetching reports...</h2>
+          <div>
+            <div className="stats-container">
+              <div className="skeleton-card" style={{ height: '110px' }}></div>
+              <div className="skeleton-card" style={{ height: '110px' }}></div>
+              <div className="skeleton-card" style={{ height: '110px' }}></div>
+              <div className="skeleton-card" style={{ height: '110px' }}></div>
+            </div>
+            <div className="dashboard-grid">
+              <div className="card col-span-8">
+                <div className="skeleton skeleton-title" style={{ width: '40%', marginBottom: '1.5rem' }}></div>
+                <div className="filter-bar">
+                  <div className="skeleton" style={{ flex: 1, height: '38px', borderRadius: 'var(--radius-md)' }}></div>
+                </div>
+                <div className="skeleton-card" style={{ height: '100px' }}></div>
+                <div className="skeleton-card" style={{ height: '100px' }}></div>
+              </div>
+              <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div className="card">
+                  <div className="skeleton skeleton-title"></div>
+                  <div className="skeleton skeleton-text"></div>
+                  <div className="skeleton skeleton-text"></div>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div>
             {/* Dashboard Overview Cards */}
             <div className="stats-container">
               <div className="stat-card">
-                <span className="stat-label">Total Support Tickets</span>
+                <span className="stat-label">Total Tickets</span>
                 <span className="stat-value">{stats.total}</span>
                 <span className="stat-badge badge badge-priority-low">All categories</span>
               </div>
               <div className="stat-card">
                 <span className="stat-label">Pending Review</span>
                 <span className="stat-value">{stats.byStatus.Open}</span>
-                <span className="stat-badge badge badge-open">Require Assignee</span>
+                <span className="stat-badge badge badge-open">Open status</span>
               </div>
               <div className="stat-card">
                 <span className="stat-label">In Progress</span>
                 <span className="stat-value">{stats.byStatus['In Progress']}</span>
-                <span className="stat-badge badge badge-progress">Active development</span>
+                <span className="stat-badge badge badge-progress">Active review</span>
               </div>
               <div className="stat-card" style={{ borderColor: stats.overdueCount > 0 ? 'var(--danger)' : 'var(--border-color)' }}>
                 <span className="stat-label">Overdue Tickets</span>
                 <span className="stat-value" style={{ color: stats.overdueCount > 0 ? 'var(--danger)' : 'inherit' }}>
                   {stats.overdueCount}
                 </span>
-                <span className="stat-badge badge badge-overdue">{stats.overdueThresholdDays} day threshold</span>
+                <span className="stat-badge badge badge-overdue">{stats.overdueThresholdDays} day rule</span>
+              </div>
+              <div className="stat-card" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span className="stat-label">Resolution Rate</span>
+                  <span className="stat-value">{stats.total > 0 ? Math.round((stats.byStatus.Resolved / stats.total) * 100) : 0}%</span>
+                  <span className="stat-badge badge badge-resolved">Resolved: {stats.byStatus.Resolved}</span>
+                </div>
+                <div style={{ position: 'relative', width: '64px', height: '64px', flexShrink: 0 }}>
+                  <svg width="64" height="64" viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--border-color)" strokeWidth="12" />
+                    <circle 
+                      cx="50" 
+                      cy="50" 
+                      r="40" 
+                      fill="transparent" 
+                      stroke="var(--success)" 
+                      strokeWidth="12" 
+                      strokeDasharray="251.2" 
+                      strokeDashoffset={251.2 - (251.2 * (stats.total > 0 ? (stats.byStatus.Resolved / stats.total) * 100 : 0)) / 100} 
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.8s ease-out' }}
+                    />
+                  </svg>
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: '50%', 
+                    left: '50%', 
+                    transform: 'translate(-50%, -50%)', 
+                    fontFamily: 'var(--font-display)', 
+                    fontWeight: '800', 
+                    fontSize: '0.8rem'
+                  }}>
+                    {stats.byStatus.Resolved}
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className="dashboard-grid">
               {/* Left Column: Complaints Admin Workspace */}
-              <div className="card" style={{ gridColumn: 'span 8' }}>
-                <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Maintenance Workspace</h2>
+              <div className="card col-span-8">
+                <h2 style={{ fontSize: '1.35rem', color: 'var(--text-primary)', marginBottom: '1.25rem' }}>Maintenance Workspace</h2>
 
                 {/* Filter and Search Bar */}
                 <div className="filter-bar">
                   <div className="filter-item" style={{ flex: '2 1 200px' }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.2rem' }}>Search Tickets</label>
-                    <div style={{ position: 'relative' }}>
-                      <FiSearch style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Search Tickets</label>
+                    <div className="form-group-icon-wrapper">
+                      <FiSearch />
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control form-control-icon-padding"
                         placeholder="Search title, details, resident..."
                         value={filterSearch}
                         onChange={(e) => setFilterSearch(e.target.value)}
-                        style={{ paddingLeft: '2.2rem' }}
                       />
                     </div>
                   </div>
 
                   <div className="filter-item" style={{ flex: '1 1 120px' }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.2rem' }}>Category</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Category</label>
                     <select className="form-control" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
                       <option value="">All Categories</option>
                       <option value="Plumbing">Plumbing</option>
@@ -335,7 +412,7 @@ const AdminDashboard = () => {
                   </div>
 
                   <div className="filter-item" style={{ flex: '1 1 120px' }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.2rem' }}>Status</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Status</label>
                     <select className="form-control" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                       <option value="">All Statuses</option>
                       <option value="Open">Open</option>
@@ -345,7 +422,7 @@ const AdminDashboard = () => {
                   </div>
 
                   <div className="filter-item" style={{ flex: '1 1 120px' }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.2rem' }}>Priority</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Priority</label>
                     <select className="form-control" value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}>
                       <option value="">All Priorities</option>
                       <option value="High">High</option>
@@ -355,7 +432,7 @@ const AdminDashboard = () => {
                   </div>
 
                   <div className="filter-item" style={{ flex: '1 1 120px' }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.2rem' }}>Created After</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Created After</label>
                     <input
                       type="date"
                       className="form-control"
@@ -371,7 +448,7 @@ const AdminDashboard = () => {
                         checked={filterOverdue}
                         onChange={(e) => setFilterOverdue(e.target.checked)}
                       />
-                      <span style={{ color: 'var(--danger)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <span style={{ color: 'var(--danger)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <FiAlertTriangle /> Overdue Only
                       </span>
                     </label>
@@ -392,34 +469,38 @@ const AdminDashboard = () => {
                         key={c._id}
                         className={`complaint-item ${c.isOverdue ? 'overdue' : ''}`}
                         onClick={() => openAdminAction(c)}
+                        style={{ display: 'flex', flexDirection: 'row', gap: '1.25rem', alignItems: 'flex-start' }}
                       >
-                        <div className="complaint-header-row">
-                          <div className="complaint-title">{c.title}</div>
-                          <div className="complaint-badges-group">
-                            {c.isOverdue && <span className="badge badge-overdue"><FiAlertTriangle /> Overdue</span>}
-                            {getPriorityBadge(c.priority)}
-                            {getStatusBadge(c.status)}
+                        {getCategoryIcon(c.category)}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="complaint-header-row">
+                            <div className="complaint-title">{c.title}</div>
+                            <div className="complaint-badges-group">
+                              {c.isOverdue && <span className="badge badge-overdue"><FiAlertTriangle /> Overdue</span>}
+                              {getPriorityBadge(c.priority)}
+                              {getStatusBadge(c.status)}
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="complaint-meta">
-                          <span className="complaint-category-label">{c.category}</span>
-                          <span>•</span>
-                          <span>Resident: <strong>{c.residentId?.name || 'Resident'}</strong> ({c.residentId?.email || 'N/A'})</span>
-                          <span>•</span>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <FiCalendar /> {new Date(c.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        <div className="complaint-desc">{c.description}</div>
-
-                        <div className="complaint-footer-row">
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            Ticket ID: #{c._id.toString().toUpperCase()}
+                          <div className="complaint-meta">
+                            <span className="complaint-category-label">{c.category}</span>
+                            <span>•</span>
+                            <span>Resident: <strong>{c.residentId?.name || 'Resident'}</strong> ({c.residentId?.email || 'N/A'})</span>
+                            <span>•</span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <FiCalendar /> {new Date(c.createdAt).toLocaleDateString()}
+                            </span>
                           </div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '600' }}>
-                            Manage ticket & history ({c.statusHistory?.length || 1} logs) →
+
+                          <div className="complaint-desc">{c.description}</div>
+
+                          <div className="complaint-footer-row">
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                              Ticket ID: #{c._id.toString().toUpperCase()}
+                            </div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>
+                              Manage ticket & history ({c.statusHistory?.length || 1} logs) →
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -429,7 +510,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Right Column: Notices Manager & Configuration Settings */}
-              <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 
                 {/* Section: Publish Notice */}
                 <div className="card">
@@ -697,19 +778,17 @@ const AdminDashboard = () => {
 
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem' }}>
+              <div className="form-row" style={{ marginTop: '1.5rem' }}>
                 <button
                   type="button"
                   onClick={() => setShowActionModal(false)}
                   className="btn btn-secondary"
-                  style={{ flex: 1 }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  style={{ flex: 2 }}
                   disabled={updateSubmitting}
                 >
                   {updateSubmitting ? 'Updating Ticket...' : 'Save Updates'}
